@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Secure Web.config Template for FUNAAB Portal -->
+<configuration>
+  <connectionStrings>
+    <!-- Use the new secure connection string -->
+    <add name="DefaultConnection" 
+         connectionString="Server=localhost;Database=FUNAAB_Portal;User Id=funaab_portal_app;Password=SecureAppPassword789!;Encrypt=true;TrustServerCertificate=false;" 
+         providerName="System.Data.SqlClient" />
+  </connectionStrings>
+  
+  <appSettings>
+    <!-- Security settings -->
+    <add key="EnableSSL" value="true" />
+    <add key="SessionTimeout" value="20" />
+    <add key="MaxLoginAttempts" value="3" />
+    <add key="LockoutDuration" value="15" />
+  </appSettings>
+  
+  <system.web>
+    <!-- Enable secure session state -->
+    <sessionState 
+      mode="SQLServer" 
+      sqlServerConnectionString="server=localhost;Integrated Security=true"
+      timeout="20" 
+      regenerateExpiredSessionId="true"
+      cookieless="false"
+      cookieTimeout="20"
+      cookieSameSite="Strict"
+      httpOnlyCookies="true"
+      requireSSL="true" />
+    
+    <!-- Enable request validation -->
+    <httpRuntime 
+      enableVersionHeader="false"
+      maxRequestLength="4096"
+      requestValidationMode="4.5"
+      targetFramework="4.8" />
+    
+    <!-- Secure compilation -->
+    <compilation debug="false" targetFramework="4.8" />
+    
+    <!-- Custom errors (don't expose system info) -->
+    <customErrors mode="On" defaultRedirect="~/Error.aspx" />
+    
+    <!-- Authentication settings -->
+    <authentication mode="Forms">
+      <forms 
+        loginUrl="~/Login.aspx"
+        timeout="20"
+        requireSSL="true"
+        slidingExpiration="false"
+        cookieSameSite="Strict" />
+    </authentication>
+    
+    <!-- Authorization -->
+    <authorization>
+      <deny users="?" />
+    </authorization>
+  </system.web>
+  
+  <system.webServer>
+    <!-- Security headers -->
+    <httpProtocol>
+      <customHeaders>
+        <add name="X-Frame-Options" value="DENY" />
+        <add name="X-Content-Type-Options" value="nosniff" />
+        <add name="X-XSS-Protection" value="1; mode=block" />
+        <add name="Strict-Transport-Security" value="max-age=31536000; includeSubDomains" />
+        <add name="Content-Security-Policy" value="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';" />
+      </customHeaders>
+    </httpProtocol>
+    
+    <!-- Remove server header -->
+    <security>
+      <requestFiltering removeServerHeader="true" />
+    </security>
+  </system.webServer>
+</configuration>
